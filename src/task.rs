@@ -2,7 +2,7 @@ use std::io::stdin;
 
 use crate::{
     db::Database,
-    utils::{self, sleep, wait_for_exit},
+    utils::{self, wait_for_exit},
 };
 
 pub struct Task {
@@ -10,7 +10,7 @@ pub struct Task {
     pub done: bool,
 }
 
-pub fn get_all_tasks(db: Database) {
+pub fn list(db: Database) {
     if let Some(conn) = db.conn {
         let mut stmt = conn.prepare("SELECT * FROM tasks").unwrap();
 
@@ -28,22 +28,39 @@ pub fn get_all_tasks(db: Database) {
 
         for task in tasks {
             let task = task.unwrap();
-            let status = if task.done { "Done" } else { "Not done" };
-            println!("{} | {}", task.description, status);
+            let status = if task.done { "✔" } else { "✘" };
+            println!("[{}] | {}", status, task.description);
         }
 
         wait_for_exit();
     }
 }
 
-pub fn add(tasks: &mut Vec<Task>) {
+pub fn add(db: Database) {
     utils::clear();
     print!("Enter todo: ");
-    let mut title = String::new();
-    stdin().read_line(&mut title).unwrap();
+    let mut description = String::new();
+    stdin().read_line(&mut description).unwrap();
 
-    tasks.push(Task {
-        description: title,
-        done: false,
-    });
+    if let Some(conn) = db.conn {
+        conn.execute(
+            "INSERT INTO tasks (description, done) VALUES  (?1, ?2)",
+            (&description.trim(), false),
+        )
+        .unwrap();
+    }
+}
+
+pub fn delete(db: Database) {
+    utils::clear();
+    println!("Enter todo to delete: ");
+    let mut id = String::new();
+    stdin().read_line(&mut id).unwrap();
+
+    println!("{}", id);
+
+    if let Some(conn) = db.conn {
+        conn.execute("DELETE FROM tasks WHERE id = ?1", [id])
+            .unwrap();
+    }
 }

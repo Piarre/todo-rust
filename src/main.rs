@@ -7,12 +7,13 @@ use std::io::{stdin, stdout, Write};
 
 fn main() {
     loop {
-        let mut sqlite = Database::new();
+        let sqlite = Database::new();
 
-        utils::clear();
         utils::clear();
         println!("--- | Rust | Todo App | ---");
         println!("(1) | Get all todos");
+        println!("(2) | Add a todo");
+        println!("(3) | Delete a todo");
         println!("(5) | Quit");
 
         let mut input = String::new();
@@ -21,7 +22,9 @@ fn main() {
         stdin().read_line(&mut input).unwrap();
 
         match input.trim() {
-            "1" => task::get_all_tasks(sqlite),
+            "1" => task::list(sqlite),
+            "2" => task::add(sqlite),
+            "3" => task::delete(sqlite),
             "5" => {
                 utils::clear();
                 break;
