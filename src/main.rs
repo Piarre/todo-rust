@@ -13,7 +13,6 @@ fn main() {
         utils::clear();
         println!("--- | Rust | Todo App | ---");
         println!("(1) | Get all todos");
-        println!("(2) | Add todo");
         println!("(5) | Quit");
 
         let mut input = String::new();

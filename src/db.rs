@@ -1,4 +1,4 @@
-use rusqlite::{Connection, Params};
+use rusqlite::Connection;
 
 pub struct Database {
     pub conn: Option<Connection>,
@@ -6,7 +6,7 @@ pub struct Database {
 
 impl Database {
     pub fn new() -> Self {
-        let conn = Connection::open("todo.db").expect("Failed to open database.");
+        let conn = Connection::open("todo.db").unwrap();
 
         conn.execute(
             "CREATE TABLE IF NOT EXISTS tasks (
