@@ -1,25 +1,38 @@
 use std::io::stdin;
 
-use crate::utils::{self, sleep};
+use crate::{
+    db::Database,
+    utils::{self, sleep, wait_for_exit},
+};
 
 pub struct Task {
-    pub title: String,
+    pub description: String,
     pub done: bool,
 }
 
-pub fn get_all(tasks: &[Task]) {
-    utils::clear();
+pub fn get_all_tasks(db: Database) {
+    if let Some(conn) = db.conn {
+        let mut stmt = conn.prepare("SELECT * FROM tasks").unwrap();
 
-    if tasks.is_empty() {
-        println!("No task found.");
-        utils::sleep(1);
-    } else {
-        for (_, task) in tasks.iter().enumerate() {
-            let status = if task.done { "✔" } else { "✘" };
-            println!("[{}] | {}", status, task.title)
+        let tasks = stmt
+            .query_map([], |row| {
+                Ok(Task {
+                    description: row.get(1)?,
+                    done: row.get(2)?,
+                })
+            })
+            .unwrap();
+
+        utils::clear();
+        println!("--- | Rust | Todo App | ---");
+
+        for task in tasks {
+            let task = task.unwrap();
+            let status = if task.done { "Done" } else { "Not done" };
+            println!("{} | {}", task.description, status);
         }
 
-        println!("Presse q to exit")
+        wait_for_exit();
     }
 }
 
@@ -29,5 +42,8 @@ pub fn add(tasks: &mut Vec<Task>) {
     let mut title = String::new();
     stdin().read_line(&mut title).unwrap();
 
-    tasks.push(Task { title, done: false });
+    tasks.push(Task {
+        description: title,
+        done: false,
+    });
 }

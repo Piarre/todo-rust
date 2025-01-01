@@ -5,4 +5,4 @@ edition = "2021"
 
 [dependencies]
 crossterm = "0.28.1"
-mki = "0.2.3"
+rusqlite = { version = "0.32.1", features = ["bundled"] }

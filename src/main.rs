@@ -1,15 +1,15 @@
+mod db;
 mod task;
 mod utils;
 
+use db::Database;
 use std::io::{stdin, stdout, Write};
-use task::Task;
 
 fn main() {
-    let mut tasks: Vec<Task> = Vec::<Task>::new();
-
-    utils::clear();
-
     loop {
+        let mut sqlite = Database::new();
+
+        utils::clear();
         utils::clear();
         println!("--- | Rust | Todo App | ---");
         println!("(1) | Get all todos");
@@ -22,8 +22,7 @@ fn main() {
         stdin().read_line(&mut input).unwrap();
 
         match input.trim() {
-            "1" => task::get_all(&tasks),
-            "2" => task::add(&mut tasks),
+            "1" => task::get_all_tasks(sqlite),
             "5" => {
                 utils::clear();
                 break;
@@ -34,5 +33,6 @@ fn main() {
                 utils::sleep(1);
             }
         }
+        // sqlite.close();
     }
 }
