@@ -1,5 +1,5 @@
 use core::time;
-use mki::{bind_key, Action, InhibitEvent, Keyboard, Sequence};
+use crossterm::event::{self, Event, KeyCode};
 use std::io::{stdout, Write};
 
 pub fn clear() {
@@ -12,8 +12,13 @@ pub fn sleep(sec: u64) {
 }
 
 pub fn wait_for_exit() {
-    Keyboard::A.bind(|_| {
-        println!("A pressed, sending B");
-        Keyboard::B.click();
-    });
+    loop {
+        if event::poll(std::time::Duration::from_millis(100)).unwrap() {
+            if let Event::Key(key_event) = event::read().unwrap() {
+                if let KeyCode::Char('q') = key_event.code {
+                    break;
+                }
+            }
+        }
+    }
 }
