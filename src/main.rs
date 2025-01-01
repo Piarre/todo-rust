@@ -22,6 +22,8 @@ fn main() {
         stdin().read_line(&mut input).unwrap();
 
         match input.trim() {
+            "1" => task::get_all(&tasks),
+            "2" => task::add(&mut tasks),
             "5" => {
                 utils::clear();
                 break;
