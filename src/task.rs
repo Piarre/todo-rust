@@ -39,13 +39,11 @@ pub fn list(db: Database) {
         utils::clear();
         println!("--- | Rust | Todo App | ---");
 
-        for task in tasks {
-            let task = task.unwrap();
-            let status = if task.done { "✔" } else { "✘" };
-            println!("[{}] | {}", status, task.description);
-        }
+        display_items(tasks.map(|t| t.unwrap()).collect(), false);
 
+        print!("Press <q> to continue ");
         wait_for_exit();
+        stdout().flush().unwrap();
     }
 }
 

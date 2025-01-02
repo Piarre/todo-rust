@@ -1,5 +1,7 @@
 use rusqlite::Connection;
 
+use crate::task::Task;
+
 pub struct Database {
     pub conn: Option<Connection>,
 }
