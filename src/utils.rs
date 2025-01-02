@@ -1,6 +1,6 @@
 use core::time;
 use crossterm::event::{self, Event, KeyCode};
-use std::io::{stdout, Write};
+use std::io::{stdin, stdout, Write};
 
 pub fn clear() {
     print!("\x1B[2J\x1B[1;1H");
@@ -21,4 +21,14 @@ pub fn wait_for_exit() {
             }
         }
     }
+}
+
+pub fn input(message: &str) -> String {
+    print!("{}", message);
+    let mut input = String::new();
+    
+    stdout().flush().unwrap();
+    stdin().read_line(&mut input).unwrap();
+
+    input.trim().to_string()
 }

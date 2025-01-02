@@ -38,9 +38,7 @@ pub fn list(db: Database) {
 
 pub fn add(db: Database) {
     utils::clear();
-    print!("Enter todo: ");
-    let mut description = String::new();
-    stdin().read_line(&mut description).unwrap();
+    let description = input("Enter todo description: ");
 
     if let Some(conn) = db.conn {
         conn.execute(
@@ -53,11 +51,14 @@ pub fn add(db: Database) {
 
 pub fn delete(db: Database) {
     utils::clear();
-    println!("Enter todo to delete: ");
-    let mut id = String::new();
-    stdin().read_line(&mut id).unwrap();
 
-    println!("{}", id);
+    display_items(get_tasks(&db), true);
+
+    let id = input("\nEnter the id to delete: ");
+
+    if id.is_empty() || id == "q" {
+        return;
+    }
 
     if let Some(conn) = db.conn {
         conn.execute("DELETE FROM tasks WHERE id = ?1", [id])
