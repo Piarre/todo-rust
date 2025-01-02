@@ -20,10 +20,24 @@ impl Database {
 
         Database { conn: Some(conn) }
     }
+}
 
-    pub fn close(&mut self) {
-        if let Some(conn) = self.conn.take() {
-            conn.close().unwrap();
-        }
+pub fn get_tasks(db: &Database) -> Vec<Task> {
+    if let Some(conn) = &db.conn {
+        let mut stmt = conn.prepare("SELECT * FROM tasks").unwrap();
+
+        let tasks = stmt
+            .query_map([], |row| {
+                Ok(Task {
+                    id: row.get(0)?,
+                    description: row.get(1)?,
+                    done: row.get(2)?,
+                })
+            })
+            .unwrap();
+
+        tasks.map(|t| t.unwrap()).collect()
+    } else {
+        vec![]
     }
 }

@@ -1,13 +1,25 @@
-use std::io::stdin;
+use std::io::{stdin, stdout, Write};
 
 use crate::{
-    db::Database,
-    utils::{self, wait_for_exit},
+    db::{get_tasks, Database},
+    utils::{self, input, wait_for_exit},
 };
 
 pub struct Task {
+    pub id: i32,
     pub description: String,
     pub done: bool,
+}
+
+pub fn display_items(tasks: Vec<Task>, display_id: bool) {
+    for task in tasks {
+        let status = if task.done { "✔" } else { "✘" };
+        if display_id {
+            println!("{} | [{}] | {}", task.id, status, task.description);
+        } else {
+            println!("[{}] | {}", status, task.description);
+        }
+    }
 }
 
 pub fn list(db: Database) {
@@ -17,6 +29,7 @@ pub fn list(db: Database) {
         let tasks = stmt
             .query_map([], |row| {
                 Ok(Task {
+                    id: row.get(0)?,
                     description: row.get(1)?,
                     done: row.get(2)?,
                 })
@@ -49,7 +62,7 @@ pub fn add(db: Database) {
     }
 }
 
-pub fn delete(db: Database) {
+pub fn delete(db: &Database) {
     utils::clear();
 
     display_items(get_tasks(&db), true);
@@ -60,7 +73,7 @@ pub fn delete(db: Database) {
         return;
     }
 
-    if let Some(conn) = db.conn {
+    if let Some(conn) = &db.conn {
         conn.execute("DELETE FROM tasks WHERE id = ?1", [id])
             .unwrap();
     }

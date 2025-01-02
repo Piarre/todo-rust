@@ -24,7 +24,7 @@ fn main() {
         match input.trim() {
             "1" => task::list(sqlite),
             "2" => task::add(sqlite),
-            "3" => task::delete(sqlite),
+            "3" => task::delete(&sqlite),
             "5" => {
                 utils::clear();
                 break;
