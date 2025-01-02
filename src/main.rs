@@ -35,6 +35,5 @@ fn main() {
                 utils::sleep(1);
             }
         }
-        // sqlite.close();
     }
 }
