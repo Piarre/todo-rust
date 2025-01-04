@@ -1,4 +1,4 @@
-use std::io::{stdin, stdout, Write};
+use std::io::{stdout, Write};
 
 use crate::{
     db::{get_tasks, Database},
@@ -74,5 +74,81 @@ pub fn delete(db: &Database) {
     if let Some(conn) = &db.conn {
         conn.execute("DELETE FROM tasks WHERE id = ?1", [id])
             .unwrap();
+    }
+}
+
+pub fn update(db: &Database) {
+    utils::clear();
+
+    display_items(get_tasks(&db), true);
+
+    let id = input("Enter the id to update: ");
+
+    if id.is_empty() || id == "q" {
+        return;
+    }
+
+    let do_id_exists = if let Some(conn) = &db.conn {
+        let mut stmt = conn.prepare("SELECT id FROM tasks WHERE id = ?1").unwrap();
+        stmt.exists([id.clone()]).unwrap()
+    } else {
+        false
+    };
+
+    if !do_id_exists {
+        utils::clear();
+        println!("This todo does not exist");
+        utils::sleep(1);
+        update(&db);
+        return;
+    } else {
+        utils::clear();
+
+        let new_desk = input("Enter todo new description: ");
+
+        if let Some(conn) = &db.conn {
+            conn.execute(
+                "UPDATE tasks SET description = ?1 WHERE id = ?2",
+                [new_desk, id],
+            )
+            .unwrap();
+        }
+    }
+}
+
+pub fn validate(db: &Database) {
+    utils::clear();
+
+    display_items(get_tasks(&db), true);
+
+    let id = input("Enter the id to validate: ");
+
+    if id.is_empty() || id == "q" {
+        return;
+    }
+
+    let do_id_exists = if let Some(conn) = &db.conn {
+        let mut stmt = conn.prepare("SELECT id FROM tasks WHERE id = ?1").unwrap();
+        stmt.exists([id.clone()]).unwrap()
+    } else {
+        false
+    };
+
+    if !do_id_exists {
+        utils::clear();
+        println!("This todo does not exist");
+        utils::sleep(1);
+        validate(&db);
+        return;
+    } else {
+        utils::clear();
+
+        if let Some(conn) = &db.conn {
+            conn.execute(
+                "UPDATE tasks SET done = ?1 WHERE id = ?2",
+                (true, id.parse::<i32>().unwrap()),
+            )
+            .unwrap();
+        }
     }
 }
